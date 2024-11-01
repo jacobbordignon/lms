@@ -1,17 +1,56 @@
 <template>
-	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-lg font-semibold text-gray-900">
-			{{ __('About') }}
-		</h2>
-		<div
-			v-if="profile.data.bio"
-			v-html="profile.data.bio"
-			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
-		></div>
-		<div v-else class="text-gray-700 text-sm italic">
-			{{ __('No introduction') }}
+	<div class="mt-7 mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+		<!-- Education Details Column - Increased width -->
+		<div class="md:col-span-1 max-w-[108%]">
+			<h2 class="mb-3 text-lg font-semibold text-gray-900">
+				{{ __('Education') }}
+			</h2>
+			<div class="space-y-3">
+				<!-- University and Program Section -->
+				<div class="space-y-1">
+					<div v-if="profile.data.university" class="text-base">
+						<div>{{ profile.data.university }}</div>
+					</div>
+					<div v-if="profile.data.program" class="text-base">
+						<div class="text-gray-700">{{ profile.data.program }}</div>
+					</div>
+				</div>
+				
+				<!-- Separator -->
+				<hr class="border-gray-200 my-3" v-if="profile.data.major || profile.data.concentration" />
+				
+				<!-- Major and Concentration Section -->
+				<div class="space-y-3">
+					<div v-if="profile.data.major" class="text-base">
+						<div class="font-medium text-gray-500">{{ __('Major(s)') }}</div>
+						<div>{{ profile.data.major }}</div>
+					</div>
+					<div v-if="profile.data.concentration" class="text-base">
+						<div class="font-medium text-gray-500">{{ __('Concentration') }}</div>
+						<div>{{ profile.data.concentration }}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Rest of the template remains exactly the same -->
+		<!-- About Section Column -->
+		<div class="md:col-span-2">
+			<h2 class="mb-3 text-lg font-semibold text-gray-900">
+				{{ __('About') }}
+			</h2>
+			<div
+				v-if="profile.data.bio"
+				v-html="profile.data.bio"
+				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-gray-300 prose-th:border-gray-300 prose-td:relative prose-th:relative prose-th:bg-gray-100 prose-sm max-w-none !whitespace-normal"
+			></div>
+			<div v-else class="text-gray-700 text-sm italic">
+				{{ __('No introduction') }}
+			</div>
 		</div>
 	</div>
+
+	<!-- Badges Section remains unchanged -->
 	<div class="mt-7 mb-10" v-if="badges.data?.length">
 		<h2 class="mb-3 text-lg font-semibold text-gray-900">
 			{{ __('Achievements') }}
@@ -96,6 +135,7 @@
 		</div>
 	</div>
 </template>
+
 <script setup>
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'

@@ -25,7 +25,7 @@
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
 					<template v-slot="{ togglePopover }">
-						<Button variant="outline" @click="togglePopover()">
+						<Button variant="outline" @click="togglePopover">
 							<template #prefix>
 								<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
 							</template>
@@ -60,7 +60,7 @@
 				<Button
 					v-if="isSessionUser()"
 					class="mt-3 sm:mt-0 md:ml-auto"
-					@click="editProfile()"
+					@click="editProfile"
 				>
 					<template #prefix>
 						<Edit class="w-4 h-4 stroke-1.5 text-gray-700" />
@@ -70,11 +70,53 @@
 			</div>
 
 			<div class="mb-4 mt-6">
-				<TabButtons
-					class="inline-block"
-					:buttons="getTabButtons()"
-					v-model="activeTab"
-				/>
+				<div class="flex items-center">
+					<TabButtons
+						:buttons="getTabButtons()"
+						v-model="activeTab"
+						class="pr-6"
+					/>
+					<div class="w-20"></div>
+					<!-- Social Links -->
+					<div v-if="hasSocialLinks" class="flex items-center space-x-3">
+						<a 
+							v-if="profile.data.user_website"
+							:href="profile.data.user_website"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="w-4 h-4 transition-opacity hover:opacity-80"
+						>
+							<Blocks class="w-4 h-4 text-gray-700" />
+						</a>
+						<a 
+							v-if="profile.data.linkedin_1"
+							:href="profile.data.linkedin_1"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="w-4 h-4 transition-opacity hover:opacity-80"
+						>
+							<Linkedin class="w-4 h-4 text-[#2b5cb1]" />
+						</a>
+						<a 
+							v-if="profile.data.instagram"
+							:href="profile.data.instagram"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="w-4 h-4 transition-opacity hover:opacity-80"
+						>
+							<Instagram class="w-4 h-4 text-[#ce2c72]" />
+						</a>
+						<a 
+							v-if="profile.data.crunchbase"
+							:href="profile.data.crunchbase"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="w-4 h-4 transition-opacity hover:opacity-80"
+						>
+							<Copyright class="w-4 h-4 text-[#2f7ee4]" />
+						</a>
+					</div>
+				</div>
 			</div>
 			<router-view :profile="profile" />
 		</div>
@@ -85,11 +127,12 @@
 		:profile="profile"
 	/>
 </template>
+
 <script setup>
 import { Breadcrumbs, createResource, Button, TabButtons } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit } from 'lucide-vue-next'
+import { Edit, Blocks, Linkedin, Instagram, Copyright } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import NoPermission from '@/components/NoPermission.vue'
@@ -111,9 +154,18 @@ const props = defineProps({
 	},
 })
 
+// Computed property to check if any social links exist
+const hasSocialLinks = computed(() => {
+	return (
+		profile.data?.user_website ||
+		profile.data?.linkedin_1 ||
+		profile.data?.instagram ||
+		profile.data?.crunchbase
+	)
+})
+
 onMounted(() => {
 	if ($user.data) profile.reload()
-
 	setActiveTab()
 })
 
@@ -146,7 +198,7 @@ const coverImage = createResource({
 
 const setActiveTab = () => {
 	let fragments = route.path.split('/')
-	let sections = ['certificates', 'roles', 'slots', 'schedule']
+	let sections = ['certificates', 'slots']
 	sections.forEach((section) => {
 		if (fragments.includes(section)) {
 			activeTab.value = convertToTitleCase(section)
@@ -160,9 +212,7 @@ watchEffect(() => {
 		let route = {
 			About: { name: 'ProfileAbout' },
 			Certificates: { name: 'ProfileCertificates' },
-			Roles: { name: 'ProfileRoles' },
-			Slots: { name: 'ProfileEvaluator' },
-			Schedule: { name: 'ProfileEvaluationSchedule' },
+			Slots: { name: 'ProfileEvaluator' }
 		}[activeTab.value]
 		router.push(route)
 	}
@@ -184,21 +234,18 @@ const isSessionUser = () => {
 }
 
 const getTabButtons = () => {
-	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
-	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
-	if (
-		isSessionUser() &&
-		($user.data?.is_evaluator || $user.data?.is_moderator)
-	) {
-		buttons.push({ label: 'Slots' })
-		buttons.push({ label: 'Schedule' })
-	}
-
-	return buttons
+    let buttons = [{ label: 'About' }, { label: 'Certificates' }]
+    if (
+        isSessionUser() &&
+        ($user.data?.is_evaluator || $user.data?.is_moderator)
+    ) {
+        buttons.push({ label: 'Slots' })
+    }
+    return buttons
 }
 
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	return [
 		{
 			label: 'People',
 		},
@@ -207,12 +254,11 @@ const breadcrumbs = computed(() => {
 			route: {
 				name: 'Profile',
 				params: {
-					username: user.doc?.username,
+					username: props.username,
 				},
 			},
 		},
 	]
-	return crumbs
 })
 
 const pageMeta = computed(() => {
