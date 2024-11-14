@@ -1,3 +1,4 @@
+// App.vue
 <template>
 	<template v-if="isAuthenticated">
 		<Layout>
@@ -11,7 +12,7 @@
 <script setup>
 import { Toasts } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useScreenSize } from './utils/composables'
 import DesktopLayout from './components/DesktopLayout.vue'
 import MobileLayout from './components/MobileLayout.vue'
@@ -29,17 +30,6 @@ const { isLoggedIn } = sessionStore()
 const isAuthenticated = computed(() => {
 	return isLoggedIn && userResource.data
 })
-
-// Watch for authentication status changes
-watch(
-	isAuthenticated,
-	(newValue) => {
-		if (!newValue && router.currentRoute.value.path !== '/login') {
-			router.push('/login')
-		}
-	},
-	{ immediate: true }
-)
 
 const Layout = computed(() => {
 	if (screenSize.width < 640) {

@@ -184,26 +184,31 @@ let router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-	const { userResource, allUsers } = usersStore()
-	let { isLoggedIn } = sessionStore()
+    const { userResource, allUsers } = usersStore()
+    let { isLoggedIn } = sessionStore()
 
-	try {
-		if (isLoggedIn) {
-			await userResource.promise
-		}
-		if (
-			isLoggedIn &&
-			(to.name == 'Lesson' ||
-				to.name == 'Batch' ||
-				to.name == 'Notifications' ||
-				to.name == 'Badge')
-		) {
-			await allUsers.promise
-		}
-	} catch (error) {
-		isLoggedIn = false
-	}
-	return next()
+    try {
+        // Always check auth state first
+        if (!isLoggedIn) {
+            window.location.replace(`${window.location.origin}/login`)
+            return
+        }
+
+        // For authenticated users, wait for user data
+        await userResource.promise
+
+        // Handle specific route requirements
+        if (to.name == 'Lesson' || to.name == 'Batch' || 
+            to.name == 'Notifications' || to.name == 'Badge') {
+            await allUsers.promise
+        }
+
+        next()
+    } catch (error) {
+        console.error('Auth error:', error)
+        window.location.replace(`${window.location.origin}/login`)
+        return
+    }
 })
 
 export default router
