@@ -289,7 +289,7 @@ watch(
 
 const pageMeta = computed(() => {
 	return {
-		title: 'Courses',
+		title: 'MFI | Courses',
 		description: 'All Courses divided by categories',
 	}
 })
