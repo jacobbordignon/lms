@@ -10,21 +10,6 @@ class LMSEnrollment(Document):
         self.validate_membership_in_same_batch()
         self.validate_membership_in_different_batch_same_course()
 
-    def after_insert(self):
-        self.update_course_enrollment_count()
-    
-    def on_trash(self):
-        self.update_course_enrollment_count()
-
-    def update_course_enrollment_count(self):
-        if self.course:
-            enrollment_count = frappe.db.count(
-                'LMS Enrollment',
-                filters={'course': self.course}
-            )
-            # Directly update the enrollments field in the course
-            frappe.db.set_value('LMS Course', self.course, 'enrollments', enrollment_count)
-
     def validate_membership_in_same_batch(self):
         filters = {"member": self.member, "course": self.course, "name": ["!=", self.name]}
         if self.batch_old:
@@ -35,9 +20,9 @@ class LMSEnrollment(Document):
 
         if previous_membership:
             member_name = frappe.db.get_value("User", self.member, "full_name")
-            course_title = frappe.db.get_value("LMS Course", self.course, "title")
+            course_title = frappe.db.getvalue("LMS Course", self.course, "title")
             frappe.throw(
-                _("{0} is already a {1} of the course {2}").format(
+                ("{0} is already a {1} of the course {2}").format(
                     member_name, previous_membership.member_type, course_title
                 )
             )
@@ -62,9 +47,9 @@ class LMSEnrollment(Document):
 
         if memberships:
             membership = memberships[0]
-            member_name = frappe.db.get_value("User", self.member, "full_name")
+            member_name = frappe.db.get_value("User", self.member, "fullname")
             frappe.throw(
-                _("{0} is already a Student of {1} course through {2} batch").format(
+                ("{0} is already a Student of {1} course through {2} batch").format(
                     member_name, course, membership.batch_old
                 )
             )
@@ -73,7 +58,7 @@ class LMSEnrollment(Document):
 def create_membership(
     course, batch=None, member=None, member_type="Student", role="Member"
 ):
-    doc = frappe.get_doc(
+    frappe.get_doc(
         {
             "doctype": "LMS Enrollment",
             "batch_old": batch,
