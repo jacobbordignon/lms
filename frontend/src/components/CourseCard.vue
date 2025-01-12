@@ -106,6 +106,7 @@
 		</div>
 	</div>
 </template>
+
 <script setup>
 import { BookOpen, Users, Star } from 'lucide-vue-next'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -123,12 +124,13 @@ const props = defineProps({
 	},
 })
 </script>
+
 <style>
 .course-image {
 	height: 168px;
 	width: 100%;
 	background-size: cover;
-	background-position: center;
+	background-position: left bottom;
 	background-repeat: no-repeat;
 }
 
@@ -161,6 +163,7 @@ const props = defineProps({
 .avatar-group .avatar {
 	transition: margin 0.1s ease-in-out;
 }
+
 .image-placeholder {
 	display: flex;
 	align-items: center;
@@ -169,6 +172,7 @@ const props = defineProps({
 	color: theme('colors.gray.700');
 	font-weight: 600;
 }
+
 .avatar-group.overlap .avatar + .avatar {
 	margin-left: calc(-8px);
 }
