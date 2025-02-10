@@ -49,10 +49,9 @@
 				</div>
 
 				<div v-if="course.rating">
-					<Tooltip :text="__('Average Rating')">
+					<Tooltip>
 						<span class="flex items-center">
 							<Star class="h-4 w-4 stroke-1.5 text-gray-700 mr-1" />
-							{{ course.rating }}
 						</span>
 					</Tooltip>
 				</div>
